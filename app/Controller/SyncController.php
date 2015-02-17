@@ -4,7 +4,9 @@ App::uses('File','Utility');
 
 class SyncController extends AppController{
 
-	public function index(){}
+	public function index(){
+		$this->set('lastsync',$this->Waktusyncakhir->find('first'));
+	}
 
 	public function sync_dump(){
 
