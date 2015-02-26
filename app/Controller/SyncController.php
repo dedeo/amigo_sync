@@ -3,6 +3,7 @@ App::uses('Folder','Utility');
 App::uses('File','Utility');
 
 class SyncController extends AppController{
+	public $uses	= array('Waktusyncakhir');
 
 	public function index(){
 		$this->set('lastsync',$this->Waktusyncakhir->find('first'));
@@ -10,12 +11,10 @@ class SyncController extends AppController{
 
 	public function sync_dump(){
 
-		debug($this->request->data);
 		$start_date = $this->request->data['startdate'];
-		$end_date = $this->request->data['enddate'];
+		$end_date 	= $this->request->data['enddate'];
 
-		//debug();
-		//die();
+
 		if (!empty($this->request->data['submit'])) {
 			$this->loadModel('Mddb');
 			$this->loadModel('Waktusyncakhir');
@@ -123,8 +122,6 @@ class SyncController extends AppController{
 				}
 			}
 
-			#$this->set("test",$test);
-
 			#return;
 			/* write dump query to .sql file */
 			date_default_timezone_set('Asia/Jakarta');
@@ -137,12 +134,28 @@ class SyncController extends AppController{
 			$dumpDate = date("d-m-Y_H.i.s");
 			$file_name = $folder.$dbName."_".$dumpDate.".sql";
 			if (file_put_contents($file_name,$sql)) {
+
+				$log =  array();
 				/* update last synchronization time */
 				$this->Waktusyncakhir->setDatabase('mddb');
 				$last_sync = date("Y-m-d H:i:s");
 				$this->Waktusyncakhir->query("TRUNCATE waktusyncakhir");
 				$this->Waktusyncakhir->query("INSERT INTO waktusyncakhir(timestamp_sync) VALUES('".$last_sync."')");
+				
+				//count file .sql in current dir
+				$files = glob($folder . '*.sql');
+				if ( $files !== false )
+				{
+				    $filecount = count( $files );
+				    //echo $filecount;
+				}				
+
+				$log['lastsync'] = $last_sync;
+				$log['nfile'] = $filecount;
+
 				$this->set('success',"Database berhasil disinkronisasi.");
+				$this->set('logs',$log);
+
 			}
 		}
 	}
