@@ -14,6 +14,9 @@ class SyncController extends AppController{
 		$start_date = $this->request->data['startdate'];
 		$end_date 	= $this->request->data['enddate'];
 
+		$log 	=  array();
+		$msg	= array();
+
 
 		if (!empty($this->request->data['submit'])) {
 			$this->loadModel('Mddb');
@@ -45,7 +48,13 @@ class SyncController extends AppController{
 			}
 			//debug($query_changes);
 			if (empty($changes)) {
-				$this->set('info',"Belum ada perubahan data sejak sinkronisasi terakhir.");
+				$msg = array(
+							'status'=>'info', 
+							'msg'=>'Belum ada perubahan data sejak sinkronisasi terakhir.');
+
+				$log['msg'] = $msg;
+				$this->set('logs',$log);
+
 				return;
 			}
 
@@ -135,10 +144,14 @@ class SyncController extends AppController{
 			$file_name = $folder.$dbName."_".$dumpDate.".sql";
 			if (file_put_contents($file_name,$sql)) {
 
-				$log =  array();
 				/* update last synchronization time */
 				$this->Waktusyncakhir->setDatabase('mddb');
-				$last_sync = date("Y-m-d H:i:s");
+
+				if(!empty($end_date)){
+					$last_sync = $end_date;
+				}else{
+					$last_sync = date("Y-m-d H:i:s");
+				}
 				$this->Waktusyncakhir->query("TRUNCATE waktusyncakhir");
 				$this->Waktusyncakhir->query("INSERT INTO waktusyncakhir(timestamp_sync) VALUES('".$last_sync."')");
 				
@@ -150,14 +163,18 @@ class SyncController extends AppController{
 				    //echo $filecount;
 				}				
 
-				$log['lastsync'] = $last_sync;
-				$log['nfile'] = $filecount;
+				$msg = array(
+							'status'=>'success', 
+							'msg'=>'Belum ada perubahan data sejak sinkronisasi terakhir.');
 
-				$this->set('success',"Database berhasil disinkronisasi.");
-				$this->set('logs',$log);
+				$log['lastsync'] = $last_sync;
+				$log['nfile'] 	= $filecount;
+				$log['msg']		= $msg;
 
 			}
 		}
+
+		$this->set('logs',$log);
 	}
 }
 ?>
