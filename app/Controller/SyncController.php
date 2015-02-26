@@ -140,19 +140,24 @@ class SyncController extends AppController{
 			$folder = "/data/mysqldump/".$year."/".$month."/";
 			$dir = new Folder($folder, true, 0755);	
 
-			$dumpDate = date("d-m-Y_H.i.s");
+			if(!empty($end_date)){
+				
+				$date = new DateTime($end_date);
+				$dumpDate = date_format($date, "d-m-Y_H.i.s" );
+				$last_sync = $end_date;
+
+			}else{
+				$last_sync = date("Y-m-d H:i:s");
+				$dumpDate = date("d-m-Y_H.i.s");
+			
+			}
+
 			$file_name = $folder.$dbName."_".$dumpDate.".sql";
+
 			if (file_put_contents($file_name,$sql)) {
 
 				/* update last synchronization time */
 				$this->Waktusyncakhir->setDatabase('mddb');
-
-				if(!empty($end_date)){
-					$last_sync = $end_date;
-				}else{
-					$last_sync = date("Y-m-d H:i:s");
-				}
-				$this->Waktusyncakhir->query("TRUNCATE waktusyncakhir");
 				$this->Waktusyncakhir->query("INSERT INTO waktusyncakhir(timestamp_sync) VALUES('".$last_sync."')");
 				
 				//count file .sql in current dir
@@ -171,10 +176,12 @@ class SyncController extends AppController{
 				$log['nfile'] 	= $filecount;
 				$log['msg']		= $msg;
 
+				$this->set('logs',$log);
+
 			}
 		}
 
-		$this->set('logs',$log);
+		
 	}
 }
 ?>
