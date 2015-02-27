@@ -34,7 +34,7 @@ class SyncController extends AppController{
 				$query_changes = "SELECT Mddb.jenis_op, Mddb.nama_tabel, Mddb.prim_key FROM mddb Mddb LEFT JOIN mddb m ";
 				$query_changes .= "ON Mddb.nama_tabel = m.nama_tabel AND Mddb.prim_key = m.prim_key AND Mddb.mddb_id < m.mddb_id ";
 				
-				if(empty($start_date) AND empty($end_date)){
+				if(empty($end_date)){
 					$query_changes .= "WHERE m.mddb_id IS NULL AND Mddb.timestamp_op > '$last_sync' ";
 				}else{
 					$query_changes .= "WHERE m.mddb_id IS NULL AND Mddb.timestamp_op > '$start_date' AND Mddb.timestamp_op < '$end_date' ";
