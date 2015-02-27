@@ -158,6 +158,7 @@ class SyncController extends AppController{
 
 				/* update last synchronization time */
 				$this->Waktusyncakhir->setDatabase('mddb');
+				$this->Waktusyncakhir->query("TRUNCATE waktusyncakhir");
 				$this->Waktusyncakhir->query("INSERT INTO waktusyncakhir(timestamp_sync) VALUES('".$last_sync."')");
 				
 				//count file .sql in current dir
