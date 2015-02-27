@@ -171,7 +171,7 @@ class SyncController extends AppController{
 
 				$msg = array(
 							'status'=>'success', 
-							'msg'=>'Belum ada perubahan data sejak sinkronisasi terakhir.');
+							'msg'=>'File dump berhasil dibuat');
 
 				$log['lastsync'] = $last_sync;
 				$log['nfile'] 	= $filecount;
